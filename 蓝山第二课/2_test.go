@@ -2,7 +2,7 @@ package main
 
 import "testing"
 
-func Testjisuanji(t *testing.T) {
+func TestJisuanji(t *testing.T) {
 	tests := []struct {
 		name    string
 		x       int
