@@ -2,14 +2,14 @@ package main
 
 import "testing"
 
-func TestJisuanji(t *testing.T) {
+func TestCal(t *testing.T) {
 	tests := []struct {
 		name    string
 		x       int
 		y       int
 		op      string
 		want    int
-		wanterr bool
+		wantErr bool
 	}{
 		{"加法", 3, 5, "+", 8, false},
 		{"减法", 3, 5, "-", -2, false},
@@ -21,8 +21,8 @@ func TestJisuanji(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sum := jisuanji(tt.x, tt.y, tt.op)
-			if !tt.wanterr {
+			sum := Cal(tt.x, tt.y, tt.op)
+			if !tt.wantErr {
 				if sum != tt.want {
 					t.Errorf("输入 %d %s %d，期望结果 %d，实际结果 %d", tt.x, tt.op, tt.y, tt.want, sum)
 
