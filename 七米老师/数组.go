@@ -8,6 +8,6 @@ func main() {
 		{4, 5, 6},
 	}
 	fmt.Println(numarray)
-	fmt.Println(numarray[1][1])
+	fmt.Println(numarray[0][0])
 
 }
