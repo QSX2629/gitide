@@ -6,6 +6,7 @@ import (
 	"lanshan05/taskpool" // 引入Lv2实现的协程池包
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // FileSearchTask 实现taskpool.Task接口，代表单个文件的搜索任务
@@ -25,6 +26,7 @@ type SearchResult struct {
 func (t *FileSearchTask) Execute() {
 	file, err := os.Open(t.Filepath)
 	if err != nil {
+
 		return // 忽略打开失败的文件
 	}
 	defer file.Close()
@@ -34,11 +36,15 @@ func (t *FileSearchTask) Execute() {
 	lineNum := 1
 	for scanner.Scan() {
 		line := scanner.Text()
-		if contains(line, t.Keyword) {
+		if strings.Contains(line, t.Keyword) {
 			// 格式化输出行号和内容
 			resultLines = append(resultLines, fmt.Sprintf("第%d行: %s", lineNum, line))
 		}
 		lineNum++
+	}
+	if err := scanner.Err(); err != nil {
+		fmt.Printf("警告：读取文件失败 %s: %v\n", t.Filepath, err)
+		return
 	}
 
 	// 将结果发送到通道（若有匹配行）
@@ -52,7 +58,7 @@ func (t *FileSearchTask) Execute() {
 
 // contains 判断字符串是否包含关键词（简单实现，可扩展为正则）
 func contains(s, substr string) bool {
-	return len(substr) == 0 || filepath.Base(s) == substr || (len(s) >= len(substr) && s[:len(substr)] == substr)
+	return strings.Contains(s, substr)
 }
 
 // 递归遍历目录，收集所有文件路径
@@ -60,7 +66,7 @@ func walkDir(root string) ([]string, error) {
 	var files []string
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return err
+			return nil
 		}
 		if !info.IsDir() {
 			files = append(files, path)
@@ -91,9 +97,7 @@ func main() {
 	}
 
 	// 2. 初始化协程池（这里设置5个工作协程，任务缓冲为100）
-	pool := taskpool.New(5, 100)
-	defer pool.Close()
-
+	pool := taskpool.New(5, len(files))
 	// 3. 初始化结果通道，用于收集所有任务的结果
 	resultCh := make(chan SearchResult, len(files))
 	defer close(resultCh)
