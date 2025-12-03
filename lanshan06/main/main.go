@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	api.InitRouter_gin()
+	api.InitrouterGin()
 }

@@ -1,3 +1,6 @@
+//CorsDefault（跨域请求处理）和 JWT（身份验证）。中间件的本质是「请求到达接口前的 “拦截器”」
+//，用于统一处理通用逻辑（如跨域、权限验证），避免在每个接口重复写相同代码。下面逐段拆解，讲清作用、原理和细节：
+
 package middleware
 
 import (
@@ -47,16 +50,15 @@ func JWT() gin.HandlerFunc {
 		tokenStr := parts[1]
 
 		// 3. 解析令牌
-		username, err := utils.ParseToken(tokenStr)
+		// 修正后：先解析出 Claims 结构体，再取 Username 字段
+		claims, err := utils.ParseToken(tokenStr)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"message": "令牌无效或已过期：" + err.Error()})
 			c.Abort()
 			return
 		}
-
-		// 4. 令牌有效，将用户名存入上下文（后续接口可直接获取）
-		c.Set("username", username)
-
+		// 将用户名存入上下文（取 claims.Username）
+		c.Set("username", claims.Username)
 		// 继续执行后续接口逻辑
 		c.Next()
 	}
