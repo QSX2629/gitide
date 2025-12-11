@@ -21,7 +21,7 @@ func FindUser(username string, plainPassword string) bool {
 	if !ok {
 		return false
 	}
-	//对比明文密码与机密密码是否匹配
+	//对比明文密码与加密密码是否匹配
 	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(plainPassword))
 	return err == nil
 }

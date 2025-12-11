@@ -2,21 +2,24 @@ package utils
 
 import (
 	"fmt"
-	"github.com/golang-jwt/jwt/v5"
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 var jwtSecret = []byte("simple_jwt_secret")
 
 type Claims struct {
-	Username string `json:"username"`
+	Account   string `json:"account"`
+	Character string `json:"character"`
 	jwt.RegisteredClaims
 }
 
 // GenerateToken 根据用户名和过期时间，生成一个 JWT 令牌字符串，返回给客户端
-func GenerateToken(username string, expirationTime time.Time) (string, error) {
+func GenerateToken(account, character string, expirationTime time.Time) (string, error) {
 	claims := Claims{
-		Username: username,
+		Account:   account,
+		Character: character,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime), //令牌过期时间
 			IssuedAt:  jwt.NewNumericDate(time.Now()),     //令牌发放时间（现在的时间）
