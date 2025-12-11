@@ -1,9 +1,9 @@
 package api
 
 import (
-	"lanshan07/lanshan07/db"
-	"lanshan07/lanshan07/middlewaree"
-	"lanshan07/lanshan07/model"
+	"lanshan07/db"
+	"lanshan07/middlewaree"
+	"lanshan07/model"
 	"net/http"
 	"strconv"
 
