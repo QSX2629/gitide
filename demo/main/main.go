@@ -15,7 +15,7 @@ func main() {
 		panic("默认管理员创建失败：" + err.Error())
 	}
 	// 打印提示
-	println("默认管理员创建成功（账号：admin，密码：Admin123!）")
+	println("默认管理员创建成功（账号：admin，密码：Admin123!）") //已经更改了，交换了顺序
 	// 2. 配置路由
 	r := router.SetupRouter()
 	// 3. 启动服务（监听8080端口）

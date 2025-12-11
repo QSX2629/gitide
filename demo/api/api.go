@@ -87,7 +87,7 @@ func DeleteMemberHandler(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"code": 400, "msg": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"code": 200, "msg": "删除会员成功"})
+	c.JSON(http.StatusOK, gin.H{"code": 200, "msg": "删除用户成功"})
 }
 
 func UpdateMemberHandler(c *gin.Context) {
@@ -109,7 +109,7 @@ func UpdateMemberHandler(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"code": 400, "msg": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"code": 200, "msg": "更新会员成功"})
+	c.JSON(http.StatusOK, gin.H{"code": 200, "msg": "更新用户成功"})
 }
 
 func ListMembersHandler(c *gin.Context) {
