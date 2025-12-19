@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"context"
+	"demo/rediss"
 	"fmt"
 	"time"
 
@@ -52,4 +54,10 @@ func ParseToken(tokenStr string) (*Claims, error) {
 	}
 	return nil, jwt.ErrSignatureInvalid
 
+}
+
+// AddTokenToBlackList 将令牌加入黑名单
+func AddTokenToBlackList(ctx context.Context, tokenStr string, expire time.Duration) error {
+	cacheKey := fmt.Sprintf("blacklist:%s", tokenStr)
+	return rediss.SetCache(ctx, cacheKey, "1", expire)
 }

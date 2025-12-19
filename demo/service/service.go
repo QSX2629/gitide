@@ -1,13 +1,36 @@
 package service
 
 import (
+	"context"
 	"demo/db"
 	"demo/model"
+	"demo/rediss"
+	"demo/utils_lock"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"time"
+
+	"github.com/redis/go-redis/v9"
 )
 
 // Register 用户注册
 func Register(account, password, major string) error {
+	ctx := context.Background()
+	// 1. 定义分布式锁的key：register:账号（唯一标识）
+	lockKey := fmt.Sprintf("register:%s", account)
+	// 2. 尝试获取锁（过期时间5秒，防止死锁）
+	lockValue, ok, err := utils_lock.Lock(ctx, lockKey, 5*time.Second)
+	if err != nil {
+		return errors.New("获取锁失败：" + err.Error())
+	}
+	if !ok {
+		return errors.New("当前账号正在注册中，请稍后再试")
+	}
+	// 3. 延迟释放锁（确保函数执行完后释放）
+	defer func() {
+		_ = utils_lock.Unlock(ctx, lockKey, lockValue)
+	}()
 	// 检查账号是否已存在
 	var exist model.Member
 	if err := db.DB.Where("account = ?", account).First(&exist).Error; err == nil {
@@ -46,7 +69,10 @@ func DeleteMember(id uint) error {
 	if err := db.DB.First(&member, id).Error; err != nil {
 		return errors.New("用户不存在")
 	}
-	return db.DB.Delete(&member).Error
+	//删除缓存
+	cacheKey := fmt.Sprintf("member:%d", id)
+	_ = rediss.DeleteCache(context.Background(), cacheKey)
+	return nil
 }
 
 // UpdateMember 根据ID更新用户信息
@@ -60,7 +86,13 @@ func UpdateMember(id uint, newPwd, major string) error {
 		member.Password = newPwd
 	}
 	member.Major = major
-	return db.DB.Save(&member).Error
+	if err := db.DB.Save(&member).Error; err != nil {
+		return errors.New("更新失败")
+	}
+	//删除缓存（防止缓存与数据库数据不同）
+	cacheKey := fmt.Sprintf("member:%d", id)
+	_ = rediss.DeleteCache(context.Background(), cacheKey)
+	return nil
 }
 
 // ListMembers 查询所有用户
@@ -72,10 +104,32 @@ func ListMembers() ([]model.Member, error) {
 
 // GetMemberByID 根据ID查询用户详情
 func GetMemberByID(id uint) (*model.Member, error) {
+	//1.定义缓存的key
+	cacheKey := fmt.Sprintf("%d", id)
+	ctx := context.Background()
+	//2.获取缓存
+	cacheData, err := rediss.GetCache(ctx, cacheKey)
+	if err == nil {
+		var member model.Member
+		//缓存的JSON解析为member
+		if err = json.Unmarshal([]byte(cacheData), &member); err != nil {
+			return nil, errors.New("缓存解析失败")
+		}
+		return &member, nil
+	} else if !errors.Is(err, redis.Nil) {
+		return nil, errors.New("查询失败" + err.Error())
+	}
+	//若没有缓存则访问数据库
 	var member model.Member
-	if err := db.DB.Select("id, account, major, created_at").First(&member, id).Error; err != nil {
+	if err := db.DB.Select("id,account,major,created_at").First(&member, id).Error; err == nil {
 		return nil, errors.New("用户不存在")
 	}
+	//将结果存入redis（设置过期时间为5分钟）
+	memberJson, err := json.Marshal(member)
+	if err != nil {
+		return nil, errors.New("数据列表化失败")
+	}
+	_ = rediss.SetCache(ctx, cacheKey, string(memberJson), 60)
 	return &member, nil
 }
 func CreateDefaultAdmin() error {

@@ -1,10 +1,12 @@
 package api
 
 import (
+	"context"
 	"demo/service"
-	"demo/utils"
+	"demo/utils_JWT"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -98,7 +100,7 @@ func UpdateMemberHandler(c *gin.Context) {
 		return
 	}
 	var req struct {
-		NewPassword string `json:"new_password"` // 可选更新
+		NewPassword string `json:"new_password"`
 		Major       string `json:"major" binding:"required"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -150,5 +152,42 @@ func GetMemberHandler(c *gin.Context) {
 			"major":      member.Major,
 			"created_at": member.CreatedAt.Format("2006-01-02 15:04:05"), // 时间格式化（可选优化）
 		},
+	})
+}
+func LogoutHandler(c *gin.Context) {
+	//获取token
+	authHeader := c.Request.Header.Get("Authorization")
+	if authHeader == "" {
+		c.JSON(400, gin.H{
+			"code":    400,
+			"message": "没有令牌",
+		})
+		return
+	}
+	parts := strings.SplitN(authHeader, " ", 2)
+	if !(len(parts) == 2 && parts[0] == "") {
+		c.JSON(400, gin.H{
+			"code":    400,
+			"message": "令牌格式错误",
+		})
+		return
+	}
+	tokenStr := parts[1]
+	//解析令牌
+	claims, err := utils.ParseToken(tokenStr)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"code":    400,
+			"message": "令牌无效",
+		})
+		return
+	}
+	//加入黑名单
+	ctx := context.Background()
+	expireTime := time.Until(claims.ExpiresAt.Time)
+	_ = utils.AddTokenToBlackList(ctx, tokenStr, expireTime)
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"meesage": "推出登录",
 	})
 }

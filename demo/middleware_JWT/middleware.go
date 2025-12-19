@@ -1,7 +1,10 @@
 package middleware
 
 import (
-	"demo/utils"
+	"context"
+	"demo/rediss"
+	"demo/utils_JWT"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -28,7 +31,20 @@ func JWTAuth() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		claims, err := utils.ParseToken(parts[1])
+		tokenStr := parts[1]
+		//检查令牌是否在黑名单中
+		ctx := context.Background()
+		blacklistKey := fmt.Sprintf("blacklist:%s", tokenStr)
+		exists := rediss.ExistsCache(ctx, blacklistKey)
+		if exists {
+			c.JSON(http.StatusOK, gin.H{
+				"code":    http.StatusOK,
+				"message": "令牌以注销",
+			})
+			c.Abort()
+			return
+		}
+		claims, err := utils.ParseToken(tokenStr)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"code":    401,
