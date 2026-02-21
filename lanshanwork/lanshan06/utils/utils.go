@@ -2,8 +2,9 @@ package utils
 
 import (
 	"fmt"
-	"github.com/golang-jwt/jwt/v5"
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 var jwtSecret = []byte("simple_jwt_secret")

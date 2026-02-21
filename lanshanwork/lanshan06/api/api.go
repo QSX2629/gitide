@@ -23,7 +23,7 @@ func Register(c *gin.Context) {
 
 	// 2. 调用 dao 层检查用户名是否已存在（数据库查询）
 	if dao.CheckUserExists(req.Username) {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "user already exists"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "service already exists"})
 		return
 	}
 
@@ -48,7 +48,7 @@ func Login(c *gin.Context) {
 
 	// 2. 调用 dao 层验证用户名和密码（dao层会拿明文密码和数据库中的哈希密码比对）
 	if !dao.FindUser(req.Username, req.Password) {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "user not found"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "service not found"})
 		return
 	}
 
@@ -84,14 +84,14 @@ func ModifyPassword(c *gin.Context) {
 	//JWT上下文获取当前的用户名（通过中间件后存入  ）
 	username, exists := c.Get("username")
 	if !exists {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "user not found"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "service not found"})
 		return
 	}
 	usernamestring := username.(string)
 	//从数据库得到旧的哈希密码
 	oldHashedPassword := dao.SelectPasswordFromUsername(usernamestring)
 	if oldHashedPassword == " " {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "user can not found"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "service can not found"})
 		return
 	}
 	//检验密码是否正确

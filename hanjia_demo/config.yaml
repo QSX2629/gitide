@@ -1,0 +1,34 @@
+# 项目基础配置
+app:
+  name: "hanjia_demo"
+  env: "dev"        # 环境：dev/test/prod
+  port: 8080        # 服务端口
+
+# MySQL配置
+mysql:
+  dsn: "root:Qsx20061212@tcp(127.0.0.1:3306)/hanjia_demo?charset=utf8mb4&parseTime=True&loc=Local"
+  max_open_conns: 20  # 最大连接数
+  max_idle_conns: 10  # 最大空闲连接数
+  conn_max_lifetime: 3600  # 连接最大存活时间（秒）
+
+# Redis配置（防刷限流用）
+redis:
+  addr: "127.0.0.1:6379"
+  password: ""
+  db: 0
+  pool_size: 10  # 连接池大小
+
+# JWT配置（复用你的secret）
+jwt:
+  secret: "demo-secret-key"
+  expire_hours: 24  # token过期时间（小时）
+
+# Zap日志配置
+log:
+  level: "info"         # 日志级别：debug/info/warn/error/fatal
+  format: "console"     # 输出格式：console/json
+  output_path: "logs/app.log"  # 日志文件路径
+  max_size: 100         # 单个日志文件大小（MB）
+  max_backup: 10        # 最大备份文件数
+  max_age: 7            # 日志保留天数
+  compress: true        # 是否压缩备份

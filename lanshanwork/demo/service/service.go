@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"demo/db"
-	"demo/model"
+	"demo/model00/model"
 	"demo/rediss"
 	"demo/utils_lock"
 	"encoding/json"
@@ -140,6 +140,7 @@ func CreateDefaultAdmin() error {
 
 	// 检查默认管理员是否已存在
 	var exist model.Member
+
 	if err := db.DB.Where("account = ?", defaultAdminAccount).First(&exist).Error; err == nil {
 		// 已存在则直接返回成功
 		return nil
