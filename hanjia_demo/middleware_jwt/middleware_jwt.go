@@ -122,7 +122,7 @@ func CommentRateLimit() gin.HandlerFunc {
 }
 func JWTAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// 1. 获取请求头中的token（支持 Bearer 前缀）
+		// 1. 获取请求头中的token
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "请先登录"})
