@@ -130,7 +130,7 @@ func JWTAuth() gin.HandlerFunc {
 			return
 		}
 
-		// 处理 Bearer Token 格式（比如 "Bearer xxx.yyy.zzz"）
+		// 处理 Bearer Token 格式
 		tokenStr := ""
 		parts := strings.SplitN(authHeader, " ", 2)
 		if len(parts) == 2 && parts[0] == "Bearer" {

@@ -18,14 +18,14 @@ var Logger *zap.Logger
 
 // InitLogger 初始化日志（适配Viper配置）
 func InitLogger() error {
-	// 1. 获取最新配置（调用补全的GetConfig函数）
+	// 1. 获取最新配置
 	cfg := utils_viper.GetConfig()
 	if cfg == nil {
 		return fmt.Errorf("配置未初始化，请先调用utils_viper.InitConfig()")
 	}
 	logConfig := cfg.Log
 
-	// 2. 创建日志目录（不存在则自动创建）
+	// 2. 创建日志目录
 	logDir := filepath.Dir(logConfig.OutputPath)
 	if err := os.MkdirAll(logDir, 0755); err != nil {
 		return fmt.Errorf("创建日志目录失败: %v", err)
