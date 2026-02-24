@@ -14,7 +14,7 @@ var (
 	configMu sync.RWMutex // 读写锁，保障热更新线程安全
 )
 
-// AppConfig 配置总结构体（新增Redis字段）
+// AppConfig 配置总结构体
 type AppConfig struct {
 	App   AppConfigItem `mapstructure:"app"`
 	Mysql MysqlConfig   `mapstructure:"mysql"`
