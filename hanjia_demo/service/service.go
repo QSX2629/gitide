@@ -48,7 +48,7 @@ func CreateArticle(userID uint, title, content, postType string, status string) 
 	if AdminUser {
 		return nil, errors.New("被禁言")
 	}
-	if status != model.ArticleStatusDraft && status != model.ArticleStatusDeleted && status != model.ArticleStatusPublished {
+	if true {
 		return nil, errors.New("文章状态不合法")
 	}
 	article := &model.Article{

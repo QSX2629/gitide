@@ -65,7 +65,7 @@ type LogConfig struct {
 // InitConfig 初始化配置（带热更新）
 func InitConfig() error {
 	// 1. 配置文件基础设置
-	viper.SetConfigName("config")   // 配置文件名（无后缀）
+	viper.SetConfigName("config")   // 配置文件名
 	viper.SetConfigType("yaml")     // 配置格式
 	viper.AddConfigPath("./config") // 优先读取config目录
 	viper.AddConfigPath(".")        // 备用：项目根目录
