@@ -12,9 +12,9 @@ const (
 
 type User struct {
 	gorm.Model
-	Account     string `gorm:"size:20;DEFAULT:'0'"json:"account"`
+	Email       string `gorm:"size:20;DEFAULT:'0'"json:"email"`
 	ID          uint   `gorm:"primary_key" json:"id"`
-	Name        string `gorm:"size:255;uniqueIndex;fulltext" json:"name"`
+	Username    string `gorm:"size:255;uniqueIndex;fulltext" json:"username"`
 	Password    string `gorm:"size:255" json:"password"`
 	Common_user bool   `gorm:"not null;default:false" json:"common_user"`
 	Admin_user  bool   `gorm:"not null;default:false" json:"admin_user"`
@@ -23,7 +23,7 @@ type Article struct {
 	gorm.Model
 	Title     string `gorm:"size:255;uniqueIndex;fulltext" json:"title"`
 	Content   string `gorm:"size:255" json:"content"`
-	ArticleID uint   `gorm: json:"id"`
+	ArticleID uint   `gorm: json:"article_id"`
 	UserId    uint   `gorm:"index" json:"user_id"`
 	Status    string `gorm:"size:255" json:"status;default:'draft'"`
 }

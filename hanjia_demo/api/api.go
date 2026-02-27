@@ -32,7 +32,7 @@ func Register(c *gin.Context) {
 // Login 登录接口
 func Login(c *gin.Context) {
 	var req struct {
-		Email    string `json:"email" binding:"required"`
+		Username string `json:"username" binding:"required"`
 		Password string `json:"password" binding:"required"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -40,13 +40,13 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	user, err := service.Login(req.Email, req.Password)
+	user, err := service.Login(req.Username, req.Password)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
-	token, _ := utils_jwt.GenerateToken(user.ID, user.Name)
+	token, _ := utils_jwt.GenerateToken(user.ID, user.Username)
 	c.JSON(http.StatusOK, gin.H{"token": token, "user": user})
 }
 
@@ -182,15 +182,15 @@ func GetFollowerList(c *gin.Context) {
 
 type SearchArticleRequest struct {
 	Keyword string `form:"keyword" json:"keyword" binding:"required"` // 搜索关键词
-	Page    int    `form:"page" json:"page" binding:"default=1"`      // 页码，默认1
-	Size    int    `form:"size" json:"size" binding:"default=10"`     // 每页条数，默认10
+	Page    int    `form:"page" json:"page" `                         // 页码
+	Size    int    `form:"size" json:"size" `                         // 每页条数
 }
 
 // SearchArticle 搜索文章（仅标题/作者）
 func SearchArticle(c *gin.Context) {
 	// 1. 绑定参数（支持URL查询参数/JSON）
 	var req SearchArticleRequest
-	if err := c.ShouldBind(&req); err != nil {
+	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "参数错误：" + err.Error()})
 		return
 	}
@@ -297,7 +297,7 @@ func UnlockUser(c *gin.Context) {
 }
 
 type CommentRequest struct {
-	ArticleID uint   `json:"article_id" binding:"required"`
+	ArticleID uint   `json:"article_id" `
 	Content   string `json:"content" binding:"required"`
 }
 

@@ -9,18 +9,18 @@ import (
 )
 
 // Register 用户注册
-func Register(name, account, password string) (*model.User, error) {
+func Register(username, email, password string) (*model.User, error) {
 	// 检查用户是否已存在
 	var user model.User
-	if err := db.DB.Where("account= ?", account).First(&user).Error; err == nil {
+	if err := db.DB.Where("username= ?", username).First(&user).Error; err == nil {
 		return nil, errors.New("邮箱已注册")
 	}
 
 	// 密码加密
 	hashedPwd, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	newUser := &model.User{
-		Name:     name,
-		Account:  account,
+		Username: username,
+		Email:    email,
 		Password: string(hashedPwd),
 	}
 	result := db.DB.Create(newUser)
@@ -28,9 +28,9 @@ func Register(name, account, password string) (*model.User, error) {
 }
 
 // Login 用户登录
-func Login(email, password string) (*model.User, error) {
+func Login(username, password string) (*model.User, error) {
 	var user model.User
-	if err := db.DB.Where("email = ?", email).First(&user).Error; err != nil {
+	if err := db.DB.Where("username = ?", username).First(&user).Error; err != nil {
 		return nil, errors.New("用户不存在")
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
@@ -119,7 +119,7 @@ func SearchArticleByTitleOrAuthor(keyword string, page, size int) ([]model.Artic
 	offset := (page - 1) * size
 	err := db.DB.Model(&model.Article{}).
 		Joins("LEFT JOIN users ON articles.user_id = users.id").
-		Where("MATCH(articles.title) AGAINST(? IN NATURAL LANGUAGE MODE )AND articles.status!=?", keyword, keyword, model.ArticleStatusDeleted).
+		Where("MATCH(title) AGAINST(? IN NATURAL LANGUAGE MODE )AND status!=?", keyword, model.ArticleStatusDeleted).
 		Count(&total).
 		Offset(offset).Limit(size).
 		Preload("User").

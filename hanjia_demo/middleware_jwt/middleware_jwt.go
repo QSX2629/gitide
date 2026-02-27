@@ -58,7 +58,7 @@ func CheckRateLimit(userID uint, action string) (bool, error) {
 // ArticleRateLimit 文章发布防刷中间件
 func ArticleRateLimit() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID, exists := c.Get("user_id")
+		userID, exists := c.Get("userID")
 		if !exists {
 			c.JSON(200, gin.H{
 				"error": "未登录"})
@@ -91,10 +91,10 @@ func ArticleRateLimit() gin.HandlerFunc {
 }
 func CommentRateLimit() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID, exists := c.Get("user_id")
+		userID, exists := c.Get("userID")
 		if !exists {
 			c.JSON(200, gin.H{
-				"error": "未登录"})
+				"error": "未登录哈"})
 			c.Abort()
 			return
 		}
