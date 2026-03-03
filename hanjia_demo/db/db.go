@@ -59,7 +59,7 @@ func Init() {
 
 	// 6. 赋值全局DB并打印成功日志
 	DB = db
-	utils_log.Info("MySQL数据库初始化完成 ✅",
+	utils_log.Info("MySQL数据库初始化完成 ",
 		zap.String("dsn", mysqlCfg.Dsn),
 		zap.Int("max_open_conns", mysqlCfg.MaxOpenConns),
 		zap.Int("max_idle_conns", mysqlCfg.MaxIdleConns),

@@ -1,0 +1,40 @@
+services:
+  app:  # Go应用容器（核心：和数据库一起跑在Docker）
+    build: .  # 从当前目录的Dockerfile构建Go镜像
+    ports:
+      - "8080:8080"  # 外部访问应用的端口
+    depends_on:
+      - db
+      - redis
+    environment:
+      # Go代码里读这个环境变量，连接Docker里的MySQL
+      MYSQL_DSN: "root:Qsx20061212@tcp(db:3306)/hanjia_demo?charset=utf8mb4&parseTime=True&loc=Local"
+      REDIS_ADDR: "redis:6379"  # 连接Docker里的Redis
+    networks:
+      - my_bridge_net
+
+  db:  # MySQL容器
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: Qsx20061212
+      MYSQL_DATABASE: hanjia_demo  # 自动创建数据库
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - my_bridge_net
+
+  redis:  # Redis容器
+    image: redis:latest
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - my_bridge_net
+
+networks:
+  my_bridge_net:
+    driver: bridge
+
+volumes:
+  db_data:
+  redis_data:
